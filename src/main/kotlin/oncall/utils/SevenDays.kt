@@ -1,4 +1,4 @@
-package oncall.view
+package oncall.utils
 
 enum class SevenDays(val day: String) {
     MONDAY("월"),
