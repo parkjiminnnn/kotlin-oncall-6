@@ -58,4 +58,18 @@ class Calendar(rawMonthAndStartDay: String) {
         }
         return fullHolidays.toList().sorted()
     }
+
+    fun getWeekdays(): List<Int> {
+        val weekday = mutableListOf<Int>()
+        val fullHoliday = getFullHolidays()
+        for (i in 0 until getUntilDays()) {
+            weekday.add(i + 1)
+        }
+        for (j in fullHoliday.indices) {
+            if (weekday.contains(fullHoliday[j])) {
+                weekday.remove(fullHoliday[j])
+            }
+        }
+        return weekday
+    }
 }
