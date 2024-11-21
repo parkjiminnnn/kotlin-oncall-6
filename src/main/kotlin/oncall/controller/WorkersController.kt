@@ -10,12 +10,9 @@ import oncall.view.OutputView.scheduleView
 
 class WorkersController {
     fun run() {
-        val monthAndStartDay = inputMonthAndStartDayMessage()
-        val calendar = Calendar(monthAndStartDay)
-        val rawWeekdayWorkers = inputWeekdayWorkersMessage()
-        val rawHolidayWorkers = inputHolidayWorkersMessage()
-        val workers = Workers(rawWeekdayWorkers, rawHolidayWorkers)
-        val schedule = Schedule(calendar, workers)
+        val input = input()
+        val calendar = input.first
+        val schedule = input.second
 
         scheduleView(
             calendar.month,
@@ -24,5 +21,15 @@ class WorkersController {
             calendar.getPublicHolidays(),
             schedule.getTotalWorkers()
         )
+    }
+
+    private fun input(): Pair<Calendar, Schedule> {
+        val monthAndStartDay = inputMonthAndStartDayMessage()
+        val rawWeekdayWorkers = inputWeekdayWorkersMessage()
+        val rawHolidayWorkers = inputHolidayWorkersMessage()
+
+        val calendar = Calendar(monthAndStartDay)
+        val workers = Workers(rawWeekdayWorkers, rawHolidayWorkers)
+        return Pair(Calendar(monthAndStartDay), Schedule(calendar, workers))
     }
 }
