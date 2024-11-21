@@ -16,59 +16,72 @@ class Calendar(rawMonthAndStartDay: String) {
     }
 
     fun getPublicHolidays(): List<Int> {
-        val holidays = mutableListOf<Int>()
-        when (month) {
-            1, 3 -> holidays.add(1)
-            5 -> holidays.add(5)
-            6 -> holidays.add(6)
-            8 -> holidays.add(15)
-            10 -> {
-                holidays.add(3)
-                holidays.add(9)
-            }
-
-            12 -> holidays.add(25)
+        return when (month) {
+            1, 3 -> listOf(1)
+            5 -> listOf(5)
+            6 -> listOf(6)
+            8 -> listOf(15)
+            10 -> listOf(3, 9)
+            12 -> listOf(25)
+            else -> listOf()
         }
-        return holidays
     }
 
     private fun getWeekends(): List<Int> {
         val sevenDays = SevenDays.entries.toList()
         var saturdayIndex = sevenDays.size - (sevenDays.indexOfFirst { it.day == startDay } + 1)
         val weekend = mutableListOf<Int>()
-        while (true) {
-            if (saturdayIndex > getUntilDays()) break
-            weekend.add(saturdayIndex)
-            val sundayIndex = saturdayIndex + 1
-            weekend.add(sundayIndex)
-            saturdayIndex += 7
+
+        while (saturdayIndex <= getUntilDays()) {
+            addSaturdays(saturdayIndex, weekend)
+            addSundays(saturdayIndex, weekend)
+            saturdayIndex += sevenDays.size
         }
         return weekend
     }
 
-    fun getFullHolidays(): List<Int> {
+    private fun addSaturdays(saturdayIndex: Int, weekend: MutableList<Int>): Boolean {
+        return weekend.add(saturdayIndex)
+    }
+
+    private fun addSundays(saturdayIndex: Int, weekend: MutableList<Int>): Boolean {
+        val sundayIndex = saturdayIndex + 1
+        return weekend.add(sundayIndex)
+    }
+
+    private fun addPublicHolidays(): MutableSet<Int> {
         val fullHolidays = mutableSetOf<Int>()
         val publicHolidays = getPublicHolidays()
-        val weekends = getWeekends()
+
         publicHolidays.forEach { publicHoliday ->
             fullHolidays.add(publicHoliday)
         }
+        return fullHolidays
+    }
+
+    private fun addWeekends(): MutableSet<Int> {
+        val fullHolidays = mutableSetOf<Int>()
+        val weekends = getWeekends()
+
         weekends.forEach { weekend ->
             fullHolidays.add(weekend)
         }
-        return fullHolidays.toList().sorted()
+        return fullHolidays
+    }
+
+    fun getFullHolidays(): List<Int> {
+        return (addPublicHolidays() + addWeekends()).toList().sorted()
     }
 
     fun getWeekdays(): List<Int> {
-        val weekday = mutableListOf<Int>()
-        val fullHoliday = getFullHolidays()
-        for (i in 0 until getUntilDays()) {
-            weekday.add(i + 1)
-        }
-        for (j in fullHoliday.indices) {
-            if (weekday.contains(fullHoliday[j])) {
-                weekday.remove(fullHoliday[j])
-            }
+        val fullHolidays = getFullHolidays()
+        val weekday = MutableList(getUntilDays()) { it + 1 }
+        return removeHolidays(fullHolidays, weekday)
+    }
+
+    private fun removeHolidays(fullHolidays: List<Int>, weekday: MutableList<Int>): MutableList<Int> {
+        fullHolidays.forEach { fullHoliday ->
+            if (weekday.contains(fullHoliday)) weekday.remove(fullHoliday)
         }
         return weekday
     }
