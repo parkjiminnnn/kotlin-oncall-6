@@ -1,6 +1,6 @@
 package oncall.domain
 
-class Schedule(private val calendar: Calendar, private val workers: Workers) {
+class Schedule(private val calendar: Calendar, workers: Workers) {
     private val weekdayWorkers = getMatchedWorkers(calendar.getWeekdays(), workers.weekdayWorkerNames)
     private val holidayWorkers = getMatchedWorkers(calendar.getFullHolidays(), workers.holidayWorkerNames)
 
