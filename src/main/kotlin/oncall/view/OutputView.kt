@@ -6,17 +6,12 @@ object OutputView {
     fun scheduleView(month: Int, days: Int, startDay: String, holidays: List<Int>, totalWorkers: List<String>) {
         val sevenDays = SevenDays.entries.toList()
         val startIndex = sevenDays.indexOfFirst { it.day == startDay }
-        var day = 1
-        var workerIndex = 1
-        while (true) {
-            for (i in 0 until 7) {
-                val currentDay = sevenDays[(startIndex + i) % 7]
-                if (day > days) return
-                val currentWorker = totalWorkers[workerIndex - 1]
-                changeToHoliday(month, day, holidays, currentDay, currentWorker)
-                day++
-                workerIndex++
-            }
+
+        for ((workerIndex, day) in (1..days).withIndex()) {
+            val currentDay = sevenDays[(startIndex + (day - 1)) % sevenDays.size]
+            val currentWorker = totalWorkers[workerIndex % totalWorkers.size]
+
+            changeToHoliday(month, day, holidays, currentDay, currentWorker)
         }
     }
 
