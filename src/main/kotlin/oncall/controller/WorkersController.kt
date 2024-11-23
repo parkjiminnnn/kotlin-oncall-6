@@ -3,6 +3,7 @@ package oncall.controller
 import oncall.domain.Calendar
 import oncall.domain.Schedule
 import oncall.domain.Workers
+import oncall.utils.Validate.validateWorkers
 import oncall.view.InputView.inputHolidayWorkersMessage
 import oncall.view.InputView.inputMonthAndStartDayMessage
 import oncall.view.InputView.inputWeekdayWorkersMessage
@@ -13,7 +14,6 @@ class WorkersController {
         val input = input()
         val calendar = input.first
         val schedule = input.second
-
         scheduleView(
             calendar.month,
             calendar.getUntilDays(),
@@ -24,12 +24,33 @@ class WorkersController {
     }
 
     private fun input(): Pair<Calendar, Schedule> {
-        val monthAndStartDay = inputMonthAndStartDayMessage()
-        val rawWeekdayWorkers = inputWeekdayWorkersMessage()
-        val rawHolidayWorkers = inputHolidayWorkersMessage()
+        val calendar = validCalendar()
+        val workers = validWorkers()
+        return Pair(calendar, Schedule(calendar, workers))
+    }
 
-        val calendar = Calendar(monthAndStartDay)
-        val workers = Workers(rawWeekdayWorkers, rawHolidayWorkers)
-        return Pair(Calendar(monthAndStartDay), Schedule(calendar, workers))
+    private fun validWorkers(): Workers {
+        while (true) {
+            try {
+                val rawWeekdayWorkers = inputWeekdayWorkersMessage()
+                validateWorkers(rawWeekdayWorkers)
+                val rawHolidayWorkers = inputHolidayWorkersMessage()
+                validateWorkers(rawHolidayWorkers)
+                return Workers(rawWeekdayWorkers, rawHolidayWorkers)
+            } catch (e: IllegalArgumentException) {
+                println(e)
+            }
+        }
+    }
+
+    private fun validCalendar(): Calendar {
+        while (true) {
+            try {
+                val monthAndStartDay = inputMonthAndStartDayMessage()
+                return Calendar(monthAndStartDay)
+            } catch (e: IllegalArgumentException) {
+                println(e)
+            }
+        }
     }
 }

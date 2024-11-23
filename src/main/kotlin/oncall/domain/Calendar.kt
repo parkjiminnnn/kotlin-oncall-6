@@ -1,11 +1,14 @@
 package oncall.domain
 
 import oncall.utils.SevenDays
+import oncall.utils.Validate.isInt
+import oncall.utils.Validate.validateMonth
+import oncall.utils.Validate.validateStartDay
 
 class Calendar(rawMonthAndStartDay: String) {
     private val monthAndStartDay = rawMonthAndStartDay.split(',')
-    val month = monthAndStartDay[0].toInt()
-    val startDay = monthAndStartDay[1]
+    val month = isInt(monthAndStartDay[0]).validateMonth()
+    val startDay = monthAndStartDay[1].validateStartDay()
 
     fun getUntilDays(): Int {
         return when (month) {
